@@ -130,10 +130,10 @@ An example of the category list can be found here:
 ## Workflow diagrams
 The workflow diagram demonstrates the routes that the user, logged in or out, could take by pressing a certain button.
 
-![Workflow](sketches/loggedout_graph.png)
+![Workflow Logged out](sketches/loggedout_graph.png)
 Logged out
 
-![Workflow](sketches/loggedin_graph.png)
+![Workflow logged in](sketches/loggedin_graph.png)
 Logged in
 
 * Note:
