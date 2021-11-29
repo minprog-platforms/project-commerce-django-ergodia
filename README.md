@@ -127,3 +127,14 @@ The page with all the listings is identical to the watchlist example. For an exa
 An example of the category list can be found here:
 ![Category list page](sketches/category_list.png)
 
+## Workflow diagrams
+The workflow diagram demonstrates the routes that the user, logged in or out, could take by pressing a certain button.
+
+![Workflow](sketches/loggedout_graph.png)
+Logged out
+
+![Workflow](sketches/loggedin_graph.png)
+Logged in
+
+* Note:
+The items listed in the naviagation bar can be used across all pages. The arrows are excluded to make everything a bit more clear
