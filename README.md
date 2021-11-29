@@ -27,12 +27,15 @@ This program requires three extra models, in addition to the User model, in orde
 These models are:
 
 * Auction Listing
-Houses all the listings present, stored as a CharField, on the website and it needs to store if the listing is active or not with the use of a BooleanField. Which needs to have a many-to-many to the users model to determine, who has put the listing online.
+
+Houses all the names, descriptions and startingbids of the listings present, stored as CharFields and a DecimalField, on the website. It also needs to store if the listing is active or not with the use of a BooleanField. Which needs to have a many-to-many to the users model to determine, who has put the listing online.
 
 * Bid Listing
+
 Houses all the bids, stored as a DecimalField, per listing and who has been bid. This model will need two many-to-may links to the auction listing and the user list to link the bids to a certain auction and user.
 
 * Comment Listing
+
 Houses all the comments, stored as a CharFiels, per listing and user. This model will need two many-to-many links to the auction listing and the user list to link the comments to a certain auction and user.
 
 This is a graph of how the models will look like in the program.
