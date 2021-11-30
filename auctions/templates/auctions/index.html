@@ -1,7 +1,45 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h1>Active Listings</h2>
 
-    TODO
+        <div class="container">
+            {% for auction in auctions %}
+                <ul>
+                    <div class="row">
+                        <div class="col">
+                                {% if auction.photo_url|length > 0 %}
+                                    <img src="{{ auction.photo_url }}" alt="Image not found" width="450px">
+                                {% else %}
+                                    <p>No Image</p>
+                                {% endif %}
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Title</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ auction.title }}</div>
+                                <div class="w-100"></div>
+                                <br>
+                                <div class="col"><b>Current Price</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">
+                                    {% if auction.bids.all.last %}
+                                        {{ auction.bids.all.last }}
+                                    {% else %}
+                                        {{ auction.starting_bid}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Description</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ auction.description }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            {% endfor %}
 {% endblock %}

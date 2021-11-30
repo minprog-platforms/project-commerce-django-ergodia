@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Create{% endblock %}
+
+{% block body %}
+    <h1>Create New Listing</h1>
+
+    {% load bootstrap %}
+
+    <form action="{% url 'create' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap_horizontal:'col-md-4' }}
+        <br>
+        <button type="submit" class="btn btn-outline-primary">Save</button>
+    </form>
+    
+{% endblock %}
