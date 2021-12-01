@@ -1,17 +1,21 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h1>Active Listings</h2>
+    <h1>Active Listings</h1>
 
         <div class="container">
             {% for auction in auctions %}
-                <ul>
+                <div>
                     <div class="row">
                         <div class="col">
                                 {% if auction.photo_url|length > 0 %}
-                                    <img src="{{ auction.photo_url }}" alt="Image not found" width="450px">
+                                    <a href="/listing/{{ auction.pk }}">
+                                        <img src="{{ auction.photo_url }}" alt="Image not found" width="200px">
+                                    </a>
                                 {% else %}
-                                    <p>No Image</p>
+                                    <a href="/listing/{{ auction.pk }}">
+                                        <img src="https://i1.wp.com/www.fryskekrite.nl/wordpress/wp-content/uploads/2017/03/No-image-available.jpg" alt="Image not found" width="200px">
+                                    </a>
                                 {% endif %}
                         </div>
                         <div class="col">
@@ -40,6 +44,9 @@
                             </div>
                         </div>
                     </div>
-                </ul>
+                <br>
+                </div>
+            {% empty %}
+            <p>No active listings available at the moment!</p>
             {% endfor %}
 {% endblock %}

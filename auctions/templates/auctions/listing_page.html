@@ -1,0 +1,142 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Listing: {{ auction.title }}{% endblock %}
+
+{% block body %}
+    <h1>Listing: {{ auction.title }}</h1>
+    <br>
+    {% load custom_tags %}
+    <div class="container">
+        <div class="row">
+            {% if user.is_authenticated %}
+                {% if user.watchlist|get_auction_watchlist:auction.id %}
+                    <div class="col-sm">
+                        <form action="{% url 'watchlist_edit' auction.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-info">Delete from Watchlist</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="col-sm">
+                        <form action="{% url 'watchlist_edit' auction.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-info">Add to Watchlist</button>
+                        </form>
+                    </div>
+                {% endif %}
+                {% if user == auction.user and auction.active == True %}
+                    <div class="col-sm">
+                        <form action="{% url 'close_listing' auction.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="sumbit" class="btn btn-outline-danger">Close the listing</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <br>
+    <div>
+        {% if auction.photo_url|length > 0 %}
+            <img src="{{ auction.photo_url }}" alt="Image not found" width="500px">
+        {% else %}
+            <img src="https://i1.wp.com/www.fryskekrite.nl/wordpress/wp-content/uploads/2017/03/No-image-available.jpg" alt="Image not found" width="200px">
+        {% endif %}
+    </div>
+    <br>
+    <div>
+        <h5>Description:</h5>
+        <p>{{ auction.description }}</p>
+    </div>
+    <div>
+        <h3>
+            {% if auction.bids.all.last %}
+                Current Bid: €{{ auction.bids.all.last }}
+            {% else %}
+                Starting Bid: €{{ auction.starting_bid}}
+            {% endif %}
+        </h3>
+    </div>
+    {% if user.is_authenticated and user != auction.user and auction.active == True %}
+        <div>
+            <h5>
+                {% if auction.bids.all.last %}
+                    You need to bid higher than: €{{ auction.bids.all.last }}.
+                {% else %}
+                    Your bid can be €{{ auction.starting_bid}} or greater.
+                {% endif %}
+            </h5>
+            {% if auction.bids.all.last.user == user %}
+                <h6>
+                    You currently have the highest bid!
+                </h6>
+            {% endif %}
+            <br>
+            {% load bootstrap %}
+            <form action="{% url 'bid' auction.pk %}" method="post">
+                {% csrf_token %}
+                {{ bid_form|bootstrap_horizontal:'col-md-4' }}
+                <button type="submit" class="btn btn-outline-primary">Bid</button>
+            </form>
+        </div>
+    {% elif auction.active == False %}
+        {% if auction.bids.all.last.user == user %}
+            <div>
+                <h5>The listing has been closed!</h5>
+                <p>Your bid of {{ auction.bids.all.last.amount }} is the winning bid!</p>
+            </div>
+        {% else %}
+            <div>
+                <h5>The listing has been closed!</h5>
+            </div>
+        {% endif %}
+    {% elif user == auction.user %}
+        <div>
+            <h5>You can't bid on your own listed items!</h5>
+        </div>
+    {% else %}
+        <div>
+            <h5>You can't bid on items when you are logged out!</h5>
+        </div>
+    {% endif %}
+    <br>
+    <div>
+        <h5>Comments:</h5>
+        {% for comment in comments %}
+            <h6>{{ comment.user }}</h6>
+            <p>{{ comment.text }}</p>
+            <br>
+        {% empty %}
+            <h6>No comments yet!</h6>
+        {% endfor %}
+    </div>
+    <div>
+        {% if user.is_authenticated %}
+            <h5>Place a comment:</h5>
+            <form action="{% url 'comment' auction.pk %}" method="post">
+                {% csrf_token %}
+                {{ comment_form|bootstrap_horizontal:'col-md-4' }}
+                <br>
+                <button type="submit" class="btn btn-outline-primary">Save</button>
+            </form>
+        {% else %}
+            <h6>You can't place comments when logged out!</h6>
+        {% endif %}
+    </div>
+    <br>
+    <div>
+        <h5>Details</h5>
+        <ul>
+            <li>Placed by: {{ auction.user }}</li>
+                <li>Categories:
+                    <ul>
+                        {% for category in auction.category.all %} 
+                        <li>{{ category.category_name }}</li>
+                        {% empty %}
+                        <li>No listed category</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+        </ul>
+    </div>
+{% endblock %}

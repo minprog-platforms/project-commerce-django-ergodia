@@ -18,9 +18,10 @@ class Auction(models.Model):
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=360)
     starting_bid = models.DecimalField(decimal_places=2, max_digits=5)
-    photo_url = models.CharField(max_length=250, blank=True)
+    photo_url = models.URLField(max_length=250, blank=True)
     category = models.ManyToManyField(Category, blank=True, related_name="listings")
     active = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
 
     def __str__(self):
         return f"{self.title}"
@@ -28,8 +29,8 @@ class Auction(models.Model):
 
 class Bid(models.Model):
     amount = models.DecimalField(decimal_places=2, max_digits=5)
-    user = models.ManyToManyField(User, related_name="bids")
-    auction = models.ManyToManyField(Auction, related_name="bids")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")
 
     def __str__(self):
         return f"{self.amount}"
@@ -37,13 +38,16 @@ class Bid(models.Model):
 
 class Comment(models.Model):
     text = models.CharField(max_length=360)
-    user = models.ManyToManyField(User, related_name="comments")
-    auction = models.ManyToManyField(Auction, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="comments")
 
     def __str__(self):
         return f"{self.text}"
 
 
 class Watchlist(models.Model):
-    user = models.ManyToManyField(User, related_name="watchlist")
-    auction = models.ManyToManyField(Auction, related_name="watchlist")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist")
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="watchlist")
+
+    def __str__(self):
+        return f"{self.user}: {self.auction}"
