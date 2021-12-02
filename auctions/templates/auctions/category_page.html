@@ -1,0 +1,52 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>{{ category.category_name }}</h1>
+
+        <div class="container">
+            {% for auction in auctions %}
+                <div>
+                    <div class="row">
+                        <div class="col">
+                                {% if auction.photo_url|length > 0 %}
+                                    <a href="/listing/{{ auction.pk }}">
+                                        <img src="{{ auction.photo_url }}" alt="Image not found" width="200px">
+                                    </a>
+                                {% else %}
+                                    <a href="/listing/{{ auction.pk }}">
+                                        <img src="https://i1.wp.com/www.fryskekrite.nl/wordpress/wp-content/uploads/2017/03/No-image-available.jpg" alt="Image not found" width="200px">
+                                    </a>
+                                {% endif %}
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Title</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ auction.title }}</div>
+                                <div class="w-100"></div>
+                                <br>
+                                <div class="col"><b>Current Price</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">
+                                    {% if auction.bids.all.last %}
+                                        {{ auction.bids.all.last }}
+                                    {% else %}
+                                        {{ auction.starting_bid}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Description</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ auction.description }}</div>
+                            </div>
+                        </div>
+                    </div>
+                <br>
+                </div>
+            {% empty %}
+            <p>No listing in this category!</p>
+            {% endfor %}
+{% endblock %}

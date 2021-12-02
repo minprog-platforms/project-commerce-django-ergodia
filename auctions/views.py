@@ -1,15 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError, reset_queries
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm, CharField, Textarea, ValidationError
-from .models import Auction, Bid, Category, Comment, Watchlist
+from .models import Auction, Bid, Category, Comment, Watchlist, User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-
-
-from .models import User
 
 
 class AuctionForm(ModelForm):
@@ -22,6 +19,7 @@ class AuctionForm(ModelForm):
             'category': 'Category (optional)'
         }
 
+
 class BidForm(ModelForm):
     class Meta:
         model = Bid
@@ -29,6 +27,8 @@ class BidForm(ModelForm):
         labels = {
             'amount': 'Make a bid:',
         }
+
+
     def __init__(self, auction_id, *args, **kwargs):
         self._starting_bid = float(Auction.objects.filter(id=auction_id)[0].starting_bid)
         try:
@@ -37,7 +37,11 @@ class BidForm(ModelForm):
             self._highest_bid = None
         super(BidForm, self).__init__(*args, **kwargs)
 
+
     def clean(self):
+        """
+        Checks if the bid is higer than the previous bid or higher or equal than the starting_bid
+        """
         if self._highest_bid is not None:
             if float(self.data["amount"]) <= self._highest_bid:
                 raise ValidationError("The bid must be higher than the current bid")
@@ -55,15 +59,22 @@ class CommentForm(ModelForm):
 
 
 def index(request):
+    """
+    Renders the homepage of the website.
+    """
     # retrieve the listings that are active
     auctions = Auction.objects.filter(active="True")
 
+    # render the homepage
     return render(request, "auctions/index.html", {
         "auctions": auctions
     })
 
 
 def login_view(request):
+    """
+    Shows the login screen and handles the login process.
+    """
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -84,16 +95,22 @@ def login_view(request):
 
 
 def logout_view(request):
+    """
+    Handles the logout process.
+    """
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
 
 def register(request):
+    """
+    Handles the register process.
+    """
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
 
-        # Ensure password matches confirmation
+        # ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
@@ -101,7 +118,7 @@ def register(request):
                 "message": "Passwords must match."
             })
 
-        # Attempt to create new user
+        # attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
@@ -117,6 +134,9 @@ def register(request):
 
 @login_required
 def create_page(request):
+    """
+    Renders and processes the page to add a new listing to the website.
+    """
     if request.method == "POST":
 
         form = AuctionForm(request.POST)
@@ -137,6 +157,10 @@ def create_page(request):
 
 
 def listing_page(request, id): 
+    """
+    Tries to render the page for a listing if it exists, with the needed information and forms.
+    """
+    try:    
         auction = Auction.objects.get(pk=id)
         comments = Comment.objects.filter(auction=auction)
         return render(request, "auctions/listing_page.html", {
@@ -145,11 +169,28 @@ def listing_page(request, id):
             "bid_form": BidForm(id),
             "comment_form": CommentForm()
         })
-    #except Exception:
-    #    return render(request, "auctions/error_page.html")
+    except Exception:
+        return render(request, "auctions/error_page.html")
+
+
+@login_required
+def watchlist(request):
+    """
+    Renders the watchlist of the user logged in.
+    """
+    user = request.user
+    watchlist_user = Watchlist.objects.filter(user=user)
+
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": watchlist_user
+    })
+
 
 @login_required
 def watchlist_edit(request, auction_id):
+    """
+    Handles the input of the watchlist button on the listing page.
+    """
     if request.method == "POST":
         auction = Auction.objects.get(pk=auction_id)
         
@@ -170,8 +211,37 @@ def watchlist_edit(request, auction_id):
         
         return HttpResponseRedirect(f"/listing/{auction_id}")
 
+
+@login_required
+def categories_list(request):
+    """
+    Renders a list with all the categories of the store.
+    """
+    categories = Category.objects.all()
+    return render(request, "auctions/categories_list.html", {
+        "categories": categories
+    })
+
+
+@login_required
+def category_page(request, category_id):
+    """
+    Renders a list with all the listings stored in that category.
+    """
+    category = Category.objects.filter(pk=category_id)[0]
+    auctions = Auction.objects.filter(category=category)
+
+    return render(request, "auctions/category_page.html", {
+        "auctions": auctions,
+        "category": category
+    })
+
+
 @login_required
 def close_listing(request, auction_id):
+    """
+    Shuts the listing down when pressed on the button.
+    """
     if request.method == "POST":
         auction = Auction.objects.get(pk=auction_id)
         auction.active = False
@@ -179,8 +249,12 @@ def close_listing(request, auction_id):
 
         return HttpResponseRedirect(f"/listing/{auction_id}")
 
+
 @login_required
 def bid(request, auction_id):
+    """
+    Handles the process when a user bids on a certain item.
+    """
     if request.method == "POST":
 
         form = BidForm(auction_id, request.POST)
@@ -217,6 +291,9 @@ def bid(request, auction_id):
 
 
 def comment(request, auction_id):
+    """
+    Handles the process when a user comments on a listing.
+    """
     if request.method == "POST":
 
         form = CommentForm(request.POST)

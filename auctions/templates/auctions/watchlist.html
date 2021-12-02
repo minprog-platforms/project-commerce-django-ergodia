@@ -1,0 +1,54 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Watchlist{% endblock %}
+
+{% block body %}
+    <h1>Watchlist</h1>
+
+        <div class="container">
+            {% for watchlist_item in watchlist %}
+                <div>
+                    <div class="row">
+                        <div class="col">
+                                {% if watchlist_item.auction.photo_url|length > 0 %}
+                                    <a href="/listing/{{ watchlist_item.auction.pk }}">
+                                        <img src="{{ watchlist_item.auction.photo_url }}" alt="Image not found" width="200px">
+                                    </a>
+                                {% else %}
+                                    <a href="/listing/{{ watchlist_item.auction.pk }}">
+                                        <img src="https://i1.wp.com/www.fryskekrite.nl/wordpress/wp-content/uploads/2017/03/No-image-available.jpg" alt="Image not found" width="200px">
+                                    </a>
+                                {% endif %}
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Title</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ watchlist_item.auction.title }}</div>
+                                <div class="w-100"></div>
+                                <br>
+                                <div class="col"><b>Current Price</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">
+                                    {% if watchlist_item.auction.bids.all.last %}
+                                        {{ watchlist_item.auction.bids.all.last }}
+                                    {% else %}
+                                        {{ watchlist_item.auction.starting_bid}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col"><b>Description</b></div>
+                                <div class="w-100"></div>
+                                <div class="col">{{ watchlist_item.auction.description }}</div>
+                            </div>
+                        </div>
+                    </div>
+                <br>
+                </div>
+            {% empty %}
+            <p>You don't have any items on your watchlist at the moment.</p>
+            {% endfor %}
+{% endblock %}
